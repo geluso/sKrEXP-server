@@ -1,0 +1,23 @@
+<head>
+    <title>SKREXP<title>
+</head>
+<body>
+    <h1>sKray-E-X-P, scrape, Seattle</h1>
+    {% if recently_played %}
+        <h2>Recently sKrEXPed</h2>
+        <table>
+            <tr>
+                <td>Time</td>
+                <td>Artist</td>
+                <td>Song</td>
+            </tr>
+            {% for play in recently_played %}
+                <tr>
+                    <td>{{ play.time }}</td>
+                    <td>{{ play.song.artist }}</td>
+                    <td>{{ play.song.title }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</body>

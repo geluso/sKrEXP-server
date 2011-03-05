@@ -1,0 +1,19 @@
+{% if artist %}
+    <h1>{{ artist }}</h1>
+{% endif %}
+{% if artist_songs %}
+    <table>
+        <tr>
+             <td><strong>Song title<strong></td>
+             <td><strong>Album</strong></td>
+        </tr>
+    {% for song in artist_songs %}
+        <tr>
+            <td>{{ song.title }}</td>
+            <td>{{ song.album }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <h2>No songs available</h2>
+{% endif %}
