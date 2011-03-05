@@ -76,13 +76,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'kexp.urls'
+ROOT_URLCONF = 'sKrEXP-server.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/Users/moonmayor/Sites/kexp/templates",
+    "/Users/moonmayor/Sites/sKrEXP-server/templates",
 )
 
 INSTALLED_APPS = (
@@ -92,5 +92,5 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'kexp.tag',
+    'sKrEXP-server.tag',
 )

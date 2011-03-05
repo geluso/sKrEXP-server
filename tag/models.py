@@ -11,7 +11,6 @@ class Song(models.Model):
     album = models.CharField(max_length=200)
     year = models.CharField(max_length=200, blank=True)
     label = models.CharField(max_length=200, blank=True)
-    station = models.CharField(max_length=6, blank=True)
 
     def __unicode__(self):
         return ", ".join((self.artist, self.title))
@@ -23,7 +22,7 @@ class Song(models.Model):
 class RadioPlay(models.Model):
     time = models.DateTimeField('date played', unique=True)
     song = models.ForeignKey(Song)
-    station = models.CharField(max_length=10)
+    #station = models.CharField(max_length=10)
     
     # Returns a song most 
     def get_bookmark(self, date):

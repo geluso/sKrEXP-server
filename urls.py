@@ -12,9 +12,12 @@ urlpatterns = patterns('',
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    (r'^$', 'kexp.tag.views.index'),
-    (r'^artist/(?P<artist>[^/]*)/?$', 'kexp.tag.views.artist'),
-    (r'^song/(?P<song>[^/]*)/?$', 'kexp.tag.views.song'),
-    (r'^hour/(?P<date>[^/]*)/?$', 'kexp.tag.views.hour'),
+    (r'^$', 'sKrEXP-server.tag.views.index'),
+#    (r'^artist/(?P<artist>[^/]*)/?$', 'tag.views.artist'),
+#    (r'^song/(?P<song>[^/]*)/?$', 'tag.views.song'),
+    (r'^time_to_song/year=(?P<year>[^/]*)&month=(?P<month>[^/]*)&day=(?P<day>[^/]*)&hour=(?P<month>[^/]*)/?$', 'tag.views.time_to_song'),
+    (r'^times_to_songs/?$', 'tag.views.times_to_songs'),
+	(r'^day=(?P<day>[^/]*)/?$', 'tag.views.day'),
+    (r'^recent/?$', 'tag.views.recent'),
     (r'^admin/', include(admin.site.urls)),
 )

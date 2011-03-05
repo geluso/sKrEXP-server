@@ -1,4 +1,4 @@
-from kexp.tag.models import Song, RadioPlay
+from tag.models import Song, RadioPlay
 from django.contrib import admin
 
 admin.site.register(Song)
