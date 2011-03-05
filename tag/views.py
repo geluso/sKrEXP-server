@@ -39,15 +39,27 @@ def recent(request):
 	response = HttpResponse()
 	json_serializer = serializers.get_serializer("json")()
 	
-	query = RadioPlay.objects.order_by('-time')[:10]
+	query = Song.objects.order_by()[:5]
 
 	json_serializer.serialize(query, ensure_ascii=False, stream=response)
 
 	return response
 
+# given a list of song ids, this returns a list of songs.
+def ids_to_songs(request, ids):
+    response = HttpResponse()
+    json_serializer = serializers.get_serializer("json")()
+    
+    ids = ids.split(",")
+    
+    query = Song.objects.filter(pk__in=ids)
+    json_serializer.serialize(query, ensure_ascii=False, stream=response)
+    return response
+
 def time_to_songs(request, year, month, day, hour):
 	date = datetime(year=year, month=month, day=day, hour=hour)
 	return HttpReponse(str(date))
+
 
 def times_to_songs(request):
 	if request.method == "POST":
