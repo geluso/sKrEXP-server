@@ -66,5 +66,4 @@ class RadioPlay(models.Model):
         return "\n".join((str(self.time), self.song.__unicode__()))
 
 class UserFavorites(models.Model):
-    name = models.CharField(max_length=100)
-    song = models.ManyToManyField(Song)
+    song = models.ForeignKey(Song)

@@ -10,7 +10,7 @@ import urllib2
 # Url of the KEXP playlist.
 PLAYLIST_URL = "http://kexp.org/playlist/playlist.aspx"
 SAVE = True
-
+SLOW = True
 # If True, displays number of songs and title, artist, album.
 DEBUG = True
 
@@ -49,36 +49,44 @@ def scrape_page(date=None):
         data = Soup.BeautifulSoup(str(song))
         
         # Parse all song data.
-        artist = song.findAll(name="dd", attrs={"class":"artist"})[0].contents[0]
-        title = song.findAll(name="dd", attrs={"class":"songtitle"})[0].contents[0]
-        time = song.findAll(name="dd", attrs={"class":"time"})[0].contents[0]
-        # hack. dont worry if nothing is not found.
-        try:
+        artist = ""
+        title = ""
+        time = ""
+        album = ""
+	try:
+	    artist = song.findAll(name="dd", attrs={"class":"artist"})[0].contents[0]
+	    title = song.findAll(name="dd", attrs={"class":"songtitle"})[0].contents[0]
+	    time = song.findAll(name="dd", attrs={"class":"time"})[0].contents[0]
+	    # hack. dont worry if nothing is not found.
             album = song.findAll(name="dd", attrs={"class":"album"})[0].contents[0]
         except IndexError:
             pass
         
-        if (None not in [artist, title, album, time]  and '' not in [artist, title, album, time]):
+        if (None not in [artist, title, time]  and '' not in [artist, title, time]):
             hour = int(time[0:time.find(":")])
             minute = int(time[time.find(":") + 1:-2])
-            if time[-2:] == "PM":
+            if hour == 12 and time[-2:] == "AM":
+		hour = 0
+            elif time[-2:] == "PM":
                 hour += 12
                 hour %= 24
-#            if(DEBUG):
-#                print title
-#                print artist
-#                print album
-#                print
+            
             if (SAVE):
                 try:
-                    new_song = models.Song(artist=artist, title=title, album=album)
-                    new_song.save()
+                    if SLOW:
+		        old_song = models.Song.objects.filter(artist=artist).filter(title=title)
+                    new_song = models.Song(artist=artist, title=title)
+		    if (not SLOW or len(old_song) == 0):
+	                new_song.save()
 
                     date = date.replace(hour=hour, minute=minute)
                     posix = int(mktime(date.timetuple()))
 
+                    if SLOW:
+                        old_radio_play = models.RadioPlay.objects.filter(time=posix)
                     radio_play = models.RadioPlay(time=posix, song=new_song)
-                    radio_play.save()
+                    if (not SLOW or len(old_radio_play) == 0):
+		        radio_play.save()
                 except ValueError:
                     if (SHOW_ERRORS):
                         print "ValueError"
@@ -106,15 +114,14 @@ def scrape_today():
     print len(models.Song.objects.all()), "songs,", len(models.RadioPlay.objects.all()), "radio plays"
 
 # Scrapes the entire playlist, all the way from 2002.
-def scrape_all():
+def scrape_year(year):
     now = datetime.datetime.now() - datetime.timedelta(hours=2) - datetime.timedelta(hours=2)
-    for year in range(2001, now.year + 1):
-        for month in range(1, now.month + 1):
-            for day in range(1, now.day + 1):
-                for hour in range(0, now.hour + 1):
-                    date = datetime.datetime(year, month, day, hour)
-                    scrape_page(date)
-            print len(Song.objects.all()), "songs,", len(RadioPlay.objects.all()), "radio plays"
+    for month in range(1, 12):
+        for day in range(1, 31):
+            for hour in range(0, 24):
+                date = datetime.datetime(year, month, day, hour)
+                scrape_page(date)
+        print len(models.Song.objects.all()), "songs,", len(models.RadioPlay.objects.all()), "radio plays"
 
 # Returns the most recent song played on the radio
 def most_recent():
