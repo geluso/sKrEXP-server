@@ -3,6 +3,7 @@ import BeautifulSoup as Soup
 
 import models
 import datetime
+from time import mktime
 import urllib2
 
 
@@ -17,7 +18,7 @@ DEBUG = True
 SHOW_ERRORS = True
 
 # a useful variable used primarily when playing within the shell
-NOW = datetime.datetime.now()
+NOW = datetime.datetime.now() - datetime.timedelta(hours=2)
 
 # Returns a url for the playlist related to the given date time.
 def make_url(date):
@@ -27,20 +28,22 @@ def make_url(date):
 # song on the page and registers the song in the database.
 # Loads the most current hour if no URL is specified.
 def scrape_page(date=None):
-    print "stupid check"
     if date is None:
-        date = datetime.datetime.now()
+        date = datetime.datetime.now() - datetime.timedelta(hours=2)
     url = make_url(date)
     if url is None:
         print "url is none"
     print url
 
     # Load the page.
-    html = urllib2.urlopen(url)
+    html = urllib2.urlopen(url).read()
+    html = html.replace('</dt class=\"songtitle\">', "</dt>")
 
     # Reverse list so songs played first (at bottom of playlist) are added first.
     songs = Soup.BeautifulSoup(html).findAll("dd", "song")[::-1]
     
+    print songs
+
     if(DEBUG):
         print str(len(songs)) + " songs found."
     for song in songs:
@@ -54,6 +57,7 @@ def scrape_page(date=None):
         label = data.find("dd", "label").text
         time = data.find("dd", "time").text
         
+	print song, artist, title, album, time
         if (None not in [artist, title, album, time]  and '' not in [artist, title, album, time]):
             hour = int(time[0:time.find(":")])
             minute = int(time[time.find(":") + 1:-2])
@@ -69,8 +73,11 @@ def scrape_page(date=None):
                 try:
                     new_song = models.Song(artist=artist, title=title, album=album, year=release_year, label=label)
                     new_song.save()
-                    
-                    radio_play = models.RadioPlay(time=date, song=new_song)
+
+                    date = date.replace(hour=hour, minute=minute)
+                    posix = nt(mktime(d.timetuple()))
+
+                    radio_play = models.RadioPlay(time=posix, song=new_song)
                     radio_play.save()
                 except ValueError:
                     if (SHOW_ERRORS):
@@ -92,14 +99,14 @@ def scrape_hour():
 
 # Scrapes the playlist for every song played today.
 def scrape_today():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now() - datetime.timedelta(hours=2)
     for hour in range(0, 24):
         date = datetime.datetime(now.year, now.month, now.day, hour)
         scrape_page(date)
 
 # Scrapes the entire playlist, all the way from 2002.
 def scrape_all():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now() - datetime.timedelta(hours=2) - datetime.timedelta(hours=2)
     for year in range(2001, now.year + 1):
         for month in range(1, now.month + 1):
             for day in range(1, now.day + 1):

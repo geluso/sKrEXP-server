@@ -5,7 +5,7 @@ from tag.models import Song, RadioPlay
 from django.core import serializers
 
 from datetime import datetime
-import json
+import simplejson
 
 def index(request):
     recently_played = RadioPlay.objects.order_by('-time')[:50]
@@ -36,14 +36,17 @@ def hour(request, date):
 	return HttpResponse(date)
 
 def recent(request):
-	response = HttpResponse()
-	json_serializer = serializers.get_serializer("json")()
-	
-	query = Song.objects.order_by()[:5]
+        query = RadioPlay.objects.order_by()[:5]
+        result = [play.gather_fields() for play in query]
+        return HttpResponse(simplejson.dumps(result))
 
-	json_serializer.serialize(query, ensure_ascii=False, stream=response)
-
-	return response
+# given a list of song ids, this returns a list of songs.
+def times_to_songs(request, times):
+    response = HttpResponse()
+    
+    times = times.split(",")
+    
+    return response
 
 # given a list of song ids, this returns a list of songs.
 def ids_to_songs(request, ids):
