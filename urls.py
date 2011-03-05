@@ -5,8 +5,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Example:
-    # (r'^kexp/', include('kexp.foo.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
@@ -17,7 +15,7 @@ urlpatterns = patterns('',
 #    (r'^song/(?P<song>[^/]*)/?$', 'tag.views.song'),
     (r'^time_to_song/year=(?P<year>[^/]*)&month=(?P<month>[^/]*)&day=(?P<day>[^/]*)&hour=(?P<month>[^/]*)/?$', 'tag.views.time_to_song'),
     (r'^times_to_songs/?$', 'tag.views.times_to_songs'),
-	(r'^day=(?P<day>[^/]*)/?$', 'tag.views.day'),
+    (r'^day=(?P<day>[^/]*)/?$', 'tag.views.day'),
     (r'^recent/?$', 'tag.views.recent'),
     (r'^admin/', include(admin.site.urls)),
 )
