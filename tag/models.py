@@ -2,6 +2,7 @@ from django.db import models
 import skrexper
 import simplejson
 import urllib
+import time, datetime
 
 # A song that has been played on the radio. A song should be
 # uniquely identified by (artist, album, title).
@@ -10,7 +11,7 @@ import urllib
 class Song(models.Model):
     artist = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
-    album = models.CharField(max_length=200)
+    album = models.CharField(max_length=200, blank=True)
     year = models.CharField(max_length=200, blank=True)
     label = models.CharField(max_length=200, blank=True)
     #tinysong_url = models.CharField(max_length=100, blank=True)
@@ -47,13 +48,14 @@ class RadioPlay(models.Model):
         return RadioPlay.objects.order_by('-time').filter(time__lte=str(date))[0]
 
     def gather_fields(self):
+        date = datetime.datetime.fromtimestamp(self.time)
         fields = {}
 	fields["radio_play_id"] = self.id
-        fields["year"] = self.time.year
-        fields["month"] = self.time.month
-        fields["day"] = self.time.day
-        fields["hour"] = self.time.hour
-        fields["minute"] = self.time.minute
+        fields["year"] = date.year
+        fields["month"] = date.month
+        fields["day"] = date.day
+        fields["hour"] = date.hour
+        fields["minute"] = date.minute
         fields.update(self.song.gather_fields())
         return fields
 

@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-import BeautifulSoup as Soup
+import tag.BeautifulSoup as Soup
 
 import models
 import datetime
@@ -38,44 +38,44 @@ def scrape_page(date=None):
     # Load the page.
     html = urllib2.urlopen(url).read()
     html = html.replace('</dt class=\"songtitle\">', "</dt>")
+    page = Soup.BeautifulSoup(html)
 
     # Reverse list so songs played first (at bottom of playlist) are added first.
-    songs = Soup.BeautifulSoup(html).findAll("dd", "song")[::-1]
+    songs = page.findAll(name="dd", attrs={"class": "song"})
     
-    print songs
-
     if(DEBUG):
         print str(len(songs)) + " songs found."
     for song in songs:
         data = Soup.BeautifulSoup(str(song))
         
         # Parse all song data.
-        artist = data.find("dd", "artist").text
-        title = data.find("dd", "songtitle").text
-        album = data.find("dd", "album").text
-        release_year = data.find("dd", "releaseyear").text
-        label = data.find("dd", "label").text
-        time = data.find("dd", "time").text
+        artist = song.findAll(name="dd", attrs={"class":"artist"})[0].contents[0]
+        title = song.findAll(name="dd", attrs={"class":"songtitle"})[0].contents[0]
+        time = song.findAll(name="dd", attrs={"class":"time"})[0].contents[0]
+        # hack. dont worry if nothing is not found.
+        try:
+            album = song.findAll(name="dd", attrs={"class":"album"})[0].contents[0]
+        except IndexError:
+            pass
         
-	print song, artist, title, album, time
         if (None not in [artist, title, album, time]  and '' not in [artist, title, album, time]):
             hour = int(time[0:time.find(":")])
             minute = int(time[time.find(":") + 1:-2])
             if time[-2:] == "PM":
                 hour += 12
                 hour %= 24
-            if(DEBUG):
-                print title
-                print artist
-                print album
-                print
+#            if(DEBUG):
+#                print title
+#                print artist
+#                print album
+#                print
             if (SAVE):
                 try:
-                    new_song = models.Song(artist=artist, title=title, album=album, year=release_year, label=label)
+                    new_song = models.Song(artist=artist, title=title, album=album)
                     new_song.save()
 
                     date = date.replace(hour=hour, minute=minute)
-                    posix = nt(mktime(d.timetuple()))
+                    posix = int(mktime(date.timetuple()))
 
                     radio_play = models.RadioPlay(time=posix, song=new_song)
                     radio_play.save()
@@ -103,6 +103,7 @@ def scrape_today():
     for hour in range(0, 24):
         date = datetime.datetime(now.year, now.month, now.day, hour)
         scrape_page(date)
+    print len(models.Song.objects.all()), "songs,", len(models.RadioPlay.objects.all()), "radio plays"
 
 # Scrapes the entire playlist, all the way from 2002.
 def scrape_all():
@@ -113,6 +114,7 @@ def scrape_all():
                 for hour in range(0, now.hour + 1):
                     date = datetime.datetime(year, month, day, hour)
                     scrape_page(date)
+            print len(Song.objects.all()), "songs,", len(RadioPlay.objects.all()), "radio plays"
 
 # Returns the most recent song played on the radio
 def most_recent():
