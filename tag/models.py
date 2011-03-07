@@ -67,3 +67,6 @@ class RadioPlay(models.Model):
 
 class UserFavorites(models.Model):
     song = models.ForeignKey(Song)
+
+    def __unicode__(self):
+	return self.song.__unicode__()

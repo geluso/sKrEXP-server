@@ -54,7 +54,8 @@ def times_to_songs(request, times):
 	if song:
 	    song22 = song[0].song
             fav = UserFavorites(song=song22)
-            songs.append(song)
+            fav.save()
+            songs.append(song22)
     if len(songs) <= 0:
 	return HttpResponse(simplejson.dumps([{"album": "not found", "song_id": 1, "title": "not found", "artist": "not found", "song_year": "", "label": ""}]))
     songs = [song.gather_fields() for song in songs]
@@ -81,19 +82,23 @@ def now(request):
 	    tinies += str(tiny) + ","
     return HttpResponse(tinies[:-1])
 
+def one(request):
+    skrexper.scrape_hour()
+    song = RadioPlay.objects.all().order_by("-time")[0]
+    return HttpResponse(unicode(song))
+
 def favorites(request):
-    favorites = [1,2,3,4,5]
+    favorites = UserFavorites.objects.all()
     tinies = ""
     for favorite in favorites:
-        favorite = Song.objects.get(pk=favorite) 
-        tiny = get_tiny(favorite.title + " " + favorite.artist)
+        tiny = get_tiny(favorite.song.title + " " + favorite.song.artist)
 	if tiny is not None:
 	    tinies += str(tiny) + ","
     return HttpResponse(tinies[:-1])
 
 def get_tiny(song):
     song = urllib.pathname2url(song)
-    url = "http://tinysong.com/b/%s?format=json&key=0c11d72380c1c9e0dbfacb1a92c23216" % song
+    url = "http://tinysong.com/b/%s?format=json&key=81fa14156b39c1e4798f6155a1e01a10" % song
     result = urllib2.urlopen(url).read()
     if result:
         result = result[result.find("SongID") + 8:]
@@ -101,18 +106,3 @@ def get_tiny(song):
 	if not result.find("missing") >= 0:
 		return result
     return None
-
-
-#def times_to_songs(request):
-#	#if request.method == "POST":
-#		#response = HttpResponse()
-#		#
-#		#times = request.get("times")
-#		#min_time = times[0]
-#		#max_time = times[-1]
-#		#
-#		#RadioPlay.objects.filter(time__gte=min_time).filter(time__lte=max_time)
-#		#json_serializer.serialize(query, ensure_ascii=False, stream=response)
-#		#return response
-#	#else:
-#		#return HttpResponse("Invalid request. Must be POST.")

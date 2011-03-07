@@ -29,7 +29,8 @@ def make_url(date):
 # Loads the most current hour if no URL is specified.
 def scrape_page(date=None):
     if date is None:
-        date = datetime.datetime.now() - datetime.timedelta(hours=2)
+        date = datetime.datetime.now()
+    date -= datetime.timedelta(hours=2)
     url = make_url(date)
     if url is None:
         print "url is none"

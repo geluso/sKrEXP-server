@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     (r'^recent/?$', 'tag.views.recent'),
     (r'^favorites/?$', 'tag.views.favorites'),
     (r'^now/?$', 'tag.views.now'),
+    (r'^one/?$', 'tag.views.one'),
     (r'^admin/', include(admin.site.urls)),
 )
