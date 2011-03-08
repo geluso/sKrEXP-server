@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import Context, loader
 from tag.models import Song, RadioPlay, UserFavorites
 from tag import skrexper
@@ -10,7 +10,7 @@ import simplejson, urllib2, urllib
 from tag.BeautifulSoup import BeautifulSoup as Soup
 
 def index(request):
-    recently_played = RadioPlay.objects.order_by('-time')[:50]
+    recently_played = RadioPlay.objects.order_by('-time')[:10]
     return render_to_response('skrexp/home.html', \
         {'recently_played' : recently_played})
 
@@ -21,6 +21,15 @@ def artist(request, artist):
         'artist_songs' : artist_songs
     })
     return HttpResponse(template.render(context))
+
+def play_recent(request):
+    skrexper.scrape_hour()
+    recent_plays = RadioPlay.objects.all().order_by("-time")[:10]
+    return render_to_response("skrexp/recent.html", {"header" : "Recently Played", "plays" : recent_plays})
+
+def play_favorites(request):
+    recent_plays = UserFavorites.objects.all()[::-1]
+    return render_to_response("skrexp/recent.html", {"header" : "Favorite Songs", "plays" : recent_plays})
 
 def song(request, song):
     return HttpResponse(song)
@@ -60,6 +69,16 @@ def times_to_songs(request, times):
 	return HttpResponse(simplejson.dumps([{"album": "not found", "song_id": 1, "title": "not found", "artist": "not found", "song_year": "", "label": ""}]))
     songs = [song.gather_fields() for song in songs]
     return HttpResponse(simplejson.dumps(songs))
+
+def remove_from_favorites(request, favorite_id):
+    favorite = UserFavorites.objects.get(id=favorite_id)
+    favorite.delete()
+    return redirect("http://mooncolony.org:8000/play_favorites")
+
+def add_to_favorites(request, song_id):
+    favorite = UserFavorites(song=Song.objects.get(id=song_id))
+    favorite.save()
+    return redirect("http://mooncolony.org:8000/play_favorites")
 
 # given a list of song ids, this returns a list of songs.
 def ids_to_songs(request, ids):

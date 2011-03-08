@@ -42,6 +42,9 @@ class RadioPlay(models.Model):
     song = models.ForeignKey(Song)
     #station = models.CharField(max_length=10)
     
+    def time_to_datetime(self):
+	return datetime.datetime.fromtimestamp(self.time)
+
     # Returns a song most 
     def get_bookmark(self, date):
         skrexper.scrape_page()
