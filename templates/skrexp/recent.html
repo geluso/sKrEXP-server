@@ -1,0 +1,41 @@
+<h1>{{ header }}</h1>
+{% if plays %}
+    <table border="1">
+        <tr>
+             {% if header == "Recently Played" %}
+                 <td><strong>Time<strong></td>
+             {% endif %}             
+             <td><strong>Artist<strong></td>
+             <td><strong>Song</strong></td>
+             <td><strong>Tinysong</strong></td>
+             {% if header == "Recently Played" %}
+		     <td><strong>Add to Favorites</strong></td>
+             {% else %}
+		     <td><strong>Remove from Favorites</strong></td>
+             {% endif %}
+        </tr>
+    {% for play in plays %}
+        <tr>
+            {% if header == "Recently Played" %}
+                <td>{{ play.time_to_datetime.hour }}:{{play.time_to_datetime.minute}}</td>
+            {% endif %} 
+            <td>{{ play.song.artist }}</td>
+            <td>{{ play.song.title }}</td>
+            <td><a href="http://tinysong.com/#/result/{{ play.song.artist }} {{ play.song.title }}/" target="_blank">play</a></td>
+            {% if header == "Recently Played" %}
+                <td><a href="http://mooncolony.org:8000/add_to_favorites/{{ play.song.id }}">add</a></td>
+            {% else %}
+                <td><a href="http://mooncolony.org:8000/remove_from_favorites/{{ play.id }}">remove</a></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <h2>No recently played songs available.</h2>
+{% endif %}
+
+{% if header == "Recently Played" %}
+    <h2><a href="http://mooncolony.org:8000/play_favorites">See favorites</a></h2>
+{% else %}
+    <h2><a href="http://mooncolony.org:8000/play_recent">See recently played</a></h2>
+{% endif %}
