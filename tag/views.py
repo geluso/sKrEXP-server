@@ -48,6 +48,15 @@ def recent(request):
 def time_to_songs(request, year, month, day, hour):
 	date = datetime(year=year, month=month, day=day, hour=hour)
 	return HttpReponse(str(date))
+	
+def ids_to_songs(request, ids):
+	response = HTTPResponse()
+	ids = ids.split(",")
+	
+	for idd in ids:
+		
+	
+	return response
 
 def times_to_songs(request):
 	if request.method == "POST":
